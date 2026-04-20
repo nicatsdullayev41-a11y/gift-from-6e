@@ -34,28 +34,35 @@ window.onload = function () {
   
   document.body.appendChild(miniVideo);
 
-  // 🎬 Полноэкранное видео (3 минуты 40 секунд)
-  const fullVideo = document.createElement("video");
-  fullVideo.src = "happyBirthday.mp4";
-  fullVideo.style.position = "fixed";
-  fullVideo.style.top = "0";
-  fullVideo.style.left = "0";
-  fullVideo.style.width = "100%";
-  fullVideo.style.height = "100%";
-  fullVideo.style.objectFit = "contain";
-  fullVideo.style.backgroundColor = "black";
-  fullVideo.style.display = "none";
-  fullVideo.style.zIndex = "1000";
-  fullVideo.controls = true;
+  // 🎬 Полноэкранный YouTube плеер
+  const videoContainer = document.createElement("div");
+  videoContainer.style.position = "fixed";
+  videoContainer.style.top = "0";
+  videoContainer.style.left = "0";
+  videoContainer.style.width = "100%";
+  videoContainer.style.height = "100%";
+  videoContainer.style.backgroundColor = "black";
+  videoContainer.style.zIndex = "1000";
+  videoContainer.style.display = "none";
   
-  fullVideo.addEventListener("error", () => {
-    console.warn("Полноэкранное видео не загружено");
-    fullVideo.style.display = "none";
-    returnBtn.style.display = "none";
-    showCake = true;
-  });
+  const YOUTUBE_VIDEO_ID = "6XsSIXABVSA";
   
-  document.body.appendChild(fullVideo);
+  videoContainer.innerHTML = `
+    <div style="position: relative; width: 100%; height: 100%;">
+      <iframe 
+        id="youtubePlayer"
+        width="100%" 
+        height="100%" 
+        src="https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?autoplay=1&controls=1&modestbranding=1&rel=0&showinfo=0" 
+        frameborder="0" 
+        allow="autoplay; encrypted-media; fullscreen" 
+        allowfullscreen>
+      </iframe>
+      <div id="videoOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;"></div>
+    </div>
+  `;
+  
+  document.body.appendChild(videoContainer);
 
   // 🔘 Кнопка "Закрыть" для видео
   const returnBtn = document.createElement("button");
@@ -83,8 +90,12 @@ window.onload = function () {
   });
   
   returnBtn.addEventListener("click", () => {
-    fullVideo.pause();
-    fullVideo.style.display = "none";
+    // Останавливаем YouTube видео
+    const iframe = document.getElementById("youtubePlayer");
+    if (iframe) {
+      iframe.src = iframe.src; // Сброс видео
+    }
+    videoContainer.style.display = "none";
     returnBtn.style.display = "none";
     showCake = true;
     miniVideo.style.display = "block";
@@ -92,20 +103,22 @@ window.onload = function () {
   
   document.body.appendChild(returnBtn);
 
-  // Показываем кнопку закрытия когда видео началось
-  fullVideo.addEventListener("play", () => {
-    returnBtn.style.display = "block";
+  // Показываем кнопку закрытия когда видео открыто
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.attributeName === "style" && videoContainer.style.display === "block") {
+        returnBtn.style.display = "block";
+        // Убираем оверлей через 2 секунды
+        setTimeout(() => {
+          const overlay = document.getElementById("videoOverlay");
+          if (overlay) overlay.style.display = "none";
+        }, 2000);
+      }
+    });
   });
+  observer.observe(videoContainer, { attributes: true });
 
-  // Когда видео закончилось - закрываем его
-  fullVideo.addEventListener("ended", () => {
-    fullVideo.style.display = "none";
-    returnBtn.style.display = "none";
-    showCake = true;
-    miniVideo.style.display = "block";
-  });
-
-  // 🎊 Частицы
+  // 🎊 Частицы при движении мыши
   window.addEventListener("mousemove", function (e) {
     if (particles.length < 200) {
       for (let i = 0; i < 3; i++) {
@@ -114,7 +127,7 @@ window.onload = function () {
     }
   });
 
-  // 💥 Фейерверки
+  // 💥 Фейерверки при клике
   window.addEventListener("click", function (e) {
     createFirework(e.clientX, e.clientY);
   });
@@ -158,7 +171,7 @@ window.onload = function () {
     update() {
       this.x += this.speedX;
       this.y += this.speedY;
-      this.speedY += 0.1;
+      this.speedY += 0.1; // гравитация
       this.life -= 2;
     }
     draw() {
@@ -185,23 +198,31 @@ window.onload = function () {
     ctx.shadowBlur = 10;
     ctx.shadowColor = "rgba(0,0,0,0.3)";
 
+    // Нижний ярус
     ctx.fillStyle = "#ffb6c1";
     ctx.fillRect(x - 120, y + 20, 240, 60);
+    // Средний ярус
     ctx.fillStyle = "#ff69b4";
     ctx.fillRect(x - 90, y - 20, 180, 50);
+    // Верхний ярус
     ctx.fillStyle = "#ff1493";
     ctx.fillRect(x - 60, y - 60, 120, 40);
     
+    // Крем
     ctx.fillStyle = "#fff0f5";
     ctx.fillRect(x - 58, y - 62, 116, 8);
     
+    // Свечи
     for (let i = -40; i <= 40; i += 20) {
+      // Свечка
       ctx.fillStyle = "#ff6347";
       ctx.fillRect(x + i, y - 90, 8, 28);
       
+      // Фитиль
       ctx.fillStyle = "#333";
       ctx.fillRect(x + i + 3, y - 92, 2, 5);
       
+      // Огонь
       if (candlesOn) {
         let flicker = Math.random() * 6;
         ctx.fillStyle = `rgba(255, 200, 50, ${0.8 + Math.random() * 0.3})`;
@@ -209,6 +230,7 @@ window.onload = function () {
         ctx.arc(x + i + 4, y - 95, 8 + flicker * 0.5, 0, Math.PI * 2);
         ctx.fill();
         
+        // Свечение
         ctx.fillStyle = `rgba(255, 100, 0, ${0.3 + Math.random() * 0.2})`;
         ctx.beginPath();
         ctx.arc(x + i + 4, y - 95, 12 + flicker, 0, Math.PI * 2);
@@ -228,6 +250,7 @@ window.onload = function () {
     ctx.fillText("🎉 С ДНЁМ РОЖДЕНИЯ! 🎉", canvas.width / 2, 80);
     ctx.font = "24px Arial";
     ctx.fillText("Кликни на торт чтобы запустить салют!", canvas.width / 2, 140);
+    ctx.fillText("Нажми на видео снизу для поздравления! 🎬", canvas.width / 2, 180);
     ctx.shadowBlur = 0;
   }
 
@@ -238,6 +261,7 @@ window.onload = function () {
     let spacing = 20;
     let startX = canvas.width / 2 - btnWidth - spacing / 2;
     
+    // Кнопка "Задуть"
     ctx.fillStyle = candlesOn ? "#666" : "#ff6b6b";
     ctx.shadowBlur = 5;
     ctx.fillRect(startX, y, btnWidth, btnHeight);
@@ -245,6 +269,7 @@ window.onload = function () {
     ctx.font = "bold 20px Arial";
     ctx.fillText("🕯️ Задуть", startX + btnWidth / 2, y + 32);
     
+    // Кнопка "Зажечь"
     ctx.fillStyle = candlesOn ? "#4ecdc4" : "#666";
     ctx.fillRect(startX + btnWidth + spacing, y, btnWidth, btnHeight);
     ctx.fillStyle = "white";
@@ -257,16 +282,10 @@ window.onload = function () {
   miniVideo.addEventListener("click", () => {
     showCake = false;
     miniVideo.style.display = "none";
-    fullVideo.style.display = "block";
-    fullVideo.muted = false;
-    fullVideo.volume = 1;
-    fullVideo.currentTime = 0;
-    fullVideo.play().catch(err => {
-      console.warn("Автовоспроизведение заблокировано:", err);
-      returnBtn.style.display = "block";
-    });
+    videoContainer.style.display = "block";
   });
 
+  // 🖱️ Клик на canvas для кнопок
   canvas.addEventListener("click", function (e) {
     let rect = canvas.getBoundingClientRect();
     let scaleX = canvas.width / rect.width;
@@ -280,10 +299,12 @@ window.onload = function () {
     let spacing = 20;
     let startX = canvas.width / 2 - btnWidth - spacing / 2;
     
+    // Кнопка "Задуть"
     if (x > startX && x < startX + btnWidth && y > btnY && y < btnY + btnHeight) {
       candlesOn = false;
       createFirework(x, y);
     }
+    // Кнопка "Зажечь"
     else if (x > startX + btnWidth + spacing && x < startX + btnWidth + spacing + btnWidth && 
              y > btnY && y < btnY + btnHeight) {
       candlesOn = true;
@@ -302,17 +323,25 @@ window.onload = function () {
       drawButtons();
     }
 
-    particles.forEach((p, i) => {
-      p.update();
-      p.draw();
-      if (p.life <= 0) particles.splice(i, 1);
-    });
+    // Обновляем частицы
+    for (let i = 0; i < particles.length; i++) {
+      particles[i].update();
+      particles[i].draw();
+      if (particles[i].life <= 0) {
+        particles.splice(i, 1);
+        i--;
+      }
+    }
 
-    fireworks.forEach((f, i) => {
-      f.update();
-      f.draw();
-      if (f.life <= 0) fireworks.splice(i, 1);
-    });
+    // Обновляем фейерверки
+    for (let i = 0; i < fireworks.length; i++) {
+      fireworks[i].update();
+      fireworks[i].draw();
+      if (fireworks[i].life <= 0) {
+        fireworks.splice(i, 1);
+        i--;
+      }
+    }
 
     requestAnimationFrame(animate);
   }
