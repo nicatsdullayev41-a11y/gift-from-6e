@@ -12,7 +12,7 @@ window.onload = function () {
 
   // 🎥 Мини-видео снизу (WhatsApp-style)
   const miniVideo = document.createElement("video");
-  miniVideo.src = "video.mp4";
+  miniVideo.src = "WhatsApp Image 2026-04-20 at 00.36.11.jpeg";
   miniVideo.style.position = "absolute";
   miniVideo.style.bottom = "20px";
   miniVideo.style.left = "50%";
