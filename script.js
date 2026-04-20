@@ -27,7 +27,7 @@ window.onload = function () {
 
   // 🎬 Полноэкранное видео
   const fullVideo = document.createElement("video");
-  fullVideo.src = "video.mp4.mp4";
+  fullVideo.src = "happyBirthday.mp4";
   fullVideo.style.position = "absolute";
   fullVideo.style.top = "0";
   fullVideo.style.left = "0";
