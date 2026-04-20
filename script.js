@@ -10,29 +10,36 @@ window.onload = function () {
   let candlesOn = true;
   let showCake = true;
 
-  // 🎥 Мини-видео снизу (WhatsApp-style)
-  const miniVideo = document.createElement("video");
-  miniVideo.src = "WhatsApp Image 2026-04-20 at 00.36.11.jpeg";
-  miniVideo.style.position = "absolute";
-  miniVideo.style.bottom = "20px";
-  miniVideo.style.left = "50%";
-  miniVideo.style.transform = "translateX(-50%)";
-  miniVideo.style.width = "200px";
-  miniVideo.style.height = "120px";
-  miniVideo.style.cursor = "pointer";
-  miniVideo.style.borderRadius = "10px";
-  miniVideo.style.boxShadow = "0 4px 15px rgba(0,0,0,0.3)";
-  miniVideo.style.zIndex = "10";
-  miniVideo.muted = true;
-  miniVideo.autoplay = true;
-  miniVideo.loop = true;
+  // 🎨 БЕЛОЕ ПРЕВЬЮ С НАДПИСЬЮ "От 6е" (вместо мини-видео)
+  const previewDiv = document.createElement("div");
+  previewDiv.style.position = "absolute";
+  previewDiv.style.bottom = "20px";
+  previewDiv.style.left = "50%";
+  previewDiv.style.transform = "translateX(-50%)";
+  previewDiv.style.width = "200px";
+  previewDiv.style.height = "120px";
+  previewDiv.style.backgroundColor = "white";
+  previewDiv.style.borderRadius = "10px";
+  previewDiv.style.boxShadow = "0 4px 15px rgba(0,0,0,0.3)";
+  previewDiv.style.cursor = "pointer";
+  previewDiv.style.zIndex = "10";
+  previewDiv.style.display = "flex";
+  previewDiv.style.alignItems = "center";
+  previewDiv.style.justifyContent = "center";
+  previewDiv.style.fontSize = "24px";
+  previewDiv.style.fontWeight = "bold";
+  previewDiv.style.color = "#ff1493";
+  previewDiv.style.fontFamily = "Arial, sans-serif";
+  previewDiv.innerText = "От 6е";
   
-  miniVideo.addEventListener("error", () => {
-    console.warn("Мини-видео не загружено");
-    miniVideo.style.display = "none";
-  });
+  // Добавляем иконку видео
+  previewDiv.style.flexDirection = "column";
+  previewDiv.innerHTML = `
+    <div style="font-size: 40px; margin-bottom: 5px;">🎬</div>
+    <div>От 6е</div>
+  `;
   
-  document.body.appendChild(miniVideo);
+  document.body.appendChild(previewDiv);
 
   // 🎬 Полноэкранный YouTube плеер
   const videoContainer = document.createElement("div");
@@ -90,15 +97,14 @@ window.onload = function () {
   });
   
   returnBtn.addEventListener("click", () => {
-    // Останавливаем YouTube видео
     const iframe = document.getElementById("youtubePlayer");
     if (iframe) {
-      iframe.src = iframe.src; // Сброс видео
+      iframe.src = iframe.src;
     }
     videoContainer.style.display = "none";
     returnBtn.style.display = "none";
     showCake = true;
-    miniVideo.style.display = "block";
+    previewDiv.style.display = "flex";
   });
   
   document.body.appendChild(returnBtn);
@@ -108,7 +114,6 @@ window.onload = function () {
     mutations.forEach(function(mutation) {
       if (mutation.attributeName === "style" && videoContainer.style.display === "block") {
         returnBtn.style.display = "block";
-        // Убираем оверлей через 2 секунды
         setTimeout(() => {
           const overlay = document.getElementById("videoOverlay");
           if (overlay) overlay.style.display = "none";
@@ -117,6 +122,13 @@ window.onload = function () {
     });
   });
   observer.observe(videoContainer, { attributes: true });
+
+  // 🖱️ Клик на белое превью
+  previewDiv.addEventListener("click", () => {
+    showCake = false;
+    previewDiv.style.display = "none";
+    videoContainer.style.display = "block";
+  });
 
   // 🎊 Частицы при движении мыши
   window.addEventListener("mousemove", function (e) {
@@ -171,7 +183,7 @@ window.onload = function () {
     update() {
       this.x += this.speedX;
       this.y += this.speedY;
-      this.speedY += 0.1; // гравитация
+      this.speedY += 0.1;
       this.life -= 2;
     }
     draw() {
@@ -198,31 +210,23 @@ window.onload = function () {
     ctx.shadowBlur = 10;
     ctx.shadowColor = "rgba(0,0,0,0.3)";
 
-    // Нижний ярус
     ctx.fillStyle = "#ffb6c1";
     ctx.fillRect(x - 120, y + 20, 240, 60);
-    // Средний ярус
     ctx.fillStyle = "#ff69b4";
     ctx.fillRect(x - 90, y - 20, 180, 50);
-    // Верхний ярус
     ctx.fillStyle = "#ff1493";
     ctx.fillRect(x - 60, y - 60, 120, 40);
     
-    // Крем
     ctx.fillStyle = "#fff0f5";
     ctx.fillRect(x - 58, y - 62, 116, 8);
     
-    // Свечи
     for (let i = -40; i <= 40; i += 20) {
-      // Свечка
       ctx.fillStyle = "#ff6347";
       ctx.fillRect(x + i, y - 90, 8, 28);
       
-      // Фитиль
       ctx.fillStyle = "#333";
       ctx.fillRect(x + i + 3, y - 92, 2, 5);
       
-      // Огонь
       if (candlesOn) {
         let flicker = Math.random() * 6;
         ctx.fillStyle = `rgba(255, 200, 50, ${0.8 + Math.random() * 0.3})`;
@@ -230,7 +234,6 @@ window.onload = function () {
         ctx.arc(x + i + 4, y - 95, 8 + flicker * 0.5, 0, Math.PI * 2);
         ctx.fill();
         
-        // Свечение
         ctx.fillStyle = `rgba(255, 100, 0, ${0.3 + Math.random() * 0.2})`;
         ctx.beginPath();
         ctx.arc(x + i + 4, y - 95, 12 + flicker, 0, Math.PI * 2);
@@ -250,7 +253,7 @@ window.onload = function () {
     ctx.fillText("🎉 С ДНЁМ РОЖДЕНИЯ! 🎉", canvas.width / 2, 80);
     ctx.font = "24px Arial";
     ctx.fillText("Кликни на торт чтобы запустить салют!", canvas.width / 2, 140);
-    ctx.fillText("Нажми на видео снизу для поздравления! 🎬", canvas.width / 2, 180);
+    ctx.fillText("Нажми на белую кнопку снизу для поздравления! 🎬", canvas.width / 2, 180);
     ctx.shadowBlur = 0;
   }
 
@@ -261,7 +264,6 @@ window.onload = function () {
     let spacing = 20;
     let startX = canvas.width / 2 - btnWidth - spacing / 2;
     
-    // Кнопка "Задуть"
     ctx.fillStyle = candlesOn ? "#666" : "#ff6b6b";
     ctx.shadowBlur = 5;
     ctx.fillRect(startX, y, btnWidth, btnHeight);
@@ -269,7 +271,6 @@ window.onload = function () {
     ctx.font = "bold 20px Arial";
     ctx.fillText("🕯️ Задуть", startX + btnWidth / 2, y + 32);
     
-    // Кнопка "Зажечь"
     ctx.fillStyle = candlesOn ? "#4ecdc4" : "#666";
     ctx.fillRect(startX + btnWidth + spacing, y, btnWidth, btnHeight);
     ctx.fillStyle = "white";
@@ -277,13 +278,6 @@ window.onload = function () {
     
     ctx.shadowBlur = 0;
   }
-
-  // 🖱️ Клик на мини-видео
-  miniVideo.addEventListener("click", () => {
-    showCake = false;
-    miniVideo.style.display = "none";
-    videoContainer.style.display = "block";
-  });
 
   // 🖱️ Клик на canvas для кнопок
   canvas.addEventListener("click", function (e) {
@@ -299,12 +293,10 @@ window.onload = function () {
     let spacing = 20;
     let startX = canvas.width / 2 - btnWidth - spacing / 2;
     
-    // Кнопка "Задуть"
     if (x > startX && x < startX + btnWidth && y > btnY && y < btnY + btnHeight) {
       candlesOn = false;
       createFirework(x, y);
     }
-    // Кнопка "Зажечь"
     else if (x > startX + btnWidth + spacing && x < startX + btnWidth + spacing + btnWidth && 
              y > btnY && y < btnY + btnHeight) {
       candlesOn = true;
@@ -323,7 +315,6 @@ window.onload = function () {
       drawButtons();
     }
 
-    // Обновляем частицы
     for (let i = 0; i < particles.length; i++) {
       particles[i].update();
       particles[i].draw();
@@ -333,7 +324,6 @@ window.onload = function () {
       }
     }
 
-    // Обновляем фейерверки
     for (let i = 0; i < fireworks.length; i++) {
       fireworks[i].update();
       fireworks[i].draw();
